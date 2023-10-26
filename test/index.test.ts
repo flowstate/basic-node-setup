@@ -1,13 +1,12 @@
+import { NodeSystemClient, createClient } from "../src/index";
 import {
   NAN_STRING,
   NodeConnector,
-  NodeSystemClient,
-  createClient,
   createDistanceConverterNode,
   createInputNode,
   createNodeConnector,
   getPath,
-} from "../src/index";
+} from "../src/node.types";
 
 describe("scenario 1", () => {
   it("adds", () => {
@@ -58,20 +57,17 @@ describe("scenario 1", () => {
     );
     expect(conns[milesConnector.path]).toContain(kmConnector);
   });
-  it("gets all updates", () => {
+  it("calculates all updates", () => {
     const sys = createClient();
     const milesId = sys.add(createInputNode({ name: "miles", value: "miles" }));
-    const milesNode = sys.getNode(milesId);
     const milesConnector = createNodeConnector(milesId, "value");
 
     const kmId = sys.add(createInputNode({ name: "km", value: "kilometers" }));
-    const kmNode = sys.getNode(kmId);
     const kmConnector = createNodeConnector(kmId, "value");
 
     sys.connect({ toConnector: milesConnector, fromConnector: kmConnector });
 
     const thirdId = sys.add(createInputNode({ name: "other", value: "other" }));
-    const thirdNode = sys.getNode(thirdId);
     const thirdConnector = createNodeConnector(thirdId, "value");
 
     sys.connect({ toConnector: kmConnector, fromConnector: thirdConnector });
@@ -79,6 +75,7 @@ describe("scenario 1", () => {
     const updateList = [...sys.getUpdateList([], milesConnector)];
     expect(updateList.length).toBe(3);
   });
+
   it("updates", () => {
     const sys = createClient();
     const milesId = sys.add(createInputNode({ name: "miles", value: "miles" }));
@@ -187,16 +184,10 @@ describe("scenario 1", () => {
     );
   });
 });
-console.log("hi");
 
 describe("scenario 2", () => {
   it("converts", () => {
     const sys = createClient();
-    // add miles input and km input
-    const milesId = sys.add(createInputNode({ name: "miles", value: "10" }));
-    const milesValueConnector = createNodeConnector(milesId, "value");
-    const kmId = sys.add(createInputNode({ name: "km", value: "10" }));
-    const kmValueConnector = createNodeConnector(kmId, "value");
 
     const converterId = sys.add(
       createDistanceConverterNode({ name: "converter" })
